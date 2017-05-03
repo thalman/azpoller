@@ -25,7 +25,6 @@
 @discuss
 @end
 */
-
 #include "azpoller_classes.h"
 
 #include <qpid/messaging/Address.h>
@@ -37,7 +36,8 @@
 //  Structure of our class
 
 struct _az_poller_t {
-    int filler;     //  Declare class properties here
+    zpoller_t *mlm_poller;
+    msg::Session amqp_session;
 };
 
 
@@ -45,11 +45,15 @@ struct _az_poller_t {
 //  Create a new az_poller
 
 az_poller_t *
-az_poller_new (void)
+az_poller_new (msg::Connection connection, ...)
 {
-    az_poller_t *self = (az_poller_t *) zmalloc (sizeof (az_poller_t));
+    az_poller_t *self = new az_poller_t;
     assert (self);
     //  Initialize class properties here
+    va_list zreaders;
+    va_start (zreaders, connection);
+    self->mlm_poller = zpoller_new (zreaders);
+    self->amqp_session = connection.createSession ();
     return self;
 }
 
@@ -64,8 +68,10 @@ az_poller_destroy (az_poller_t **self_p)
     if (*self_p) {
         az_poller_t *self = *self_p;
         //  Free class properties here
+        zpoller_destroy (&self->mlm_poller);
+        delete &self->amqp_session;
         //  Free object itself
-        free (self);
+        delete self;
         *self_p = NULL;
     }
 }
@@ -139,7 +145,7 @@ az_poller_test (bool verbose)
     //assert ( (str_SELFTEST_DIR_RW != "") );
     // NOTE that for "char*" context you need (str_SELFTEST_DIR_RO + "/myfilename").c_str()
 
-    az_poller_t *self = az_poller_new ();
+    az_poller_t *self = az_poller_new (msg::Connection ());
     assert (self);
     az_poller_destroy (&self);
     //  @end
