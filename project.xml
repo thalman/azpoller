@@ -1,0 +1,27 @@
+<project
+    name = "azpoller"
+    description = "azpoller"
+    script = "zproject.gsl"
+    email = "EatonIPCOpenSource@eaton.com"
+    url = "https://42ity.org"
+    license = "GPL-2.0+"
+    repository = "https://github.com/42ity/azpoller"
+    >
+
+    <include filename = "license.xml" />
+    <version major = "1" minor = "0" patch = "0" />
+    <abi current = "1" revision = "0" age = "0" />
+
+    <use project = "czmq" min_major = "3" release = "v3.0.2"
+        repository="https://github.com/42ity/czmq.git"/>
+    <use project = "malamute" />
+
+    <class name = "azpoller" private="1">Email transport</class>
+
+    <main name = "azpoller-receiver">
+        azpoller receiver
+    </main>
+    <main name = "azpoller-producer">
+        azpoller producer
+    </main>
+</project>
