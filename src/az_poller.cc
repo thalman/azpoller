@@ -1,21 +1,21 @@
 /*  =========================================================================
     azpoller - Email transport
 
-    Copyright (C) 2014 - 2017 Eaton                                        
-                                                                           
-    This program is free software; you can redistribute it and/or modify   
-    it under the terms of the GNU General Public License as published by   
-    the Free Software Foundation; either version 2 of the License, or      
-    (at your option) any later version.                                    
-                                                                           
-    This program is distributed in the hope that it will be useful,        
-    but WITHOUT ANY WARRANTY; without even the implied warranty of         
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          
-    GNU General Public License for more details.                           
-                                                                           
+    Copyright (C) 2014 - 2017 Eaton
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
     You should have received a copy of the GNU General Public License along
     with this program; if not, write to the Free Software Foundation, Inc.,
-    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.            
+    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
     =========================================================================
 */
 
@@ -30,18 +30,18 @@
 
 //  Structure of our class
 
-struct _azpoller_t {
+struct _az_poller_t {
     int filler;     //  Declare class properties here
 };
 
 
 //  --------------------------------------------------------------------------
-//  Create a new azpoller
+//  Create a new az_poller
 
-azpoller_t *
-azpoller_new (void)
+az_poller_t *
+az_poller_new (void)
 {
-    azpoller_t *self = (azpoller_t *) zmalloc (sizeof (azpoller_t));
+    az_poller_t *self = (az_poller_t *) zmalloc (sizeof (az_poller_t));
     assert (self);
     //  Initialize class properties here
     return self;
@@ -49,14 +49,14 @@ azpoller_new (void)
 
 
 //  --------------------------------------------------------------------------
-//  Destroy the azpoller
+//  Destroy the az_poller
 
 void
-azpoller_destroy (azpoller_t **self_p)
+az_poller_destroy (az_poller_t **self_p)
 {
     assert (self_p);
     if (*self_p) {
-        azpoller_t *self = *self_p;
+        az_poller_t *self = *self_p;
         //  Free class properties here
         //  Free object itself
         free (self);
@@ -64,13 +64,38 @@ azpoller_destroy (azpoller_t **self_p)
     }
 }
 
+void
+az_poller_actor (zsock_t *pipe, void *session) {
+    zsock_signal (pipe, 0);
+    zpoller_t *pipepoller = zpoller_new (pipe, NULL);
+    while (!zsys_interrupted) {
+        void *which = zpoller_wait (pipepoller, 0);
+        if (which) {
+            // pipe command
+            zmsg_t *msg = zmsg_recv (pipe);
+            if (msg) {
+                char *cmd = zmsg_popstr (msg);
+                if (cmd) {
+                    if (streq (cmd, "$TERM")) {
+                        zstr_free (&cmd);
+                        zmsg_destroy (&msg);
+                        break;
+                    }
+                    zstr_free (&cmd);
+                }
+                zmsg_destroy (&msg);
+            }
+        }
+    }
+}
+
 //  --------------------------------------------------------------------------
 //  Self test of this class
 
 void
-azpoller_test (bool verbose)
+az_poller_test (bool verbose)
 {
-    printf (" * azpoller: ");
+    printf (" * az_poller: ");
 
     //  @selftest
     //  Simple create/destroy test
@@ -90,9 +115,9 @@ azpoller_test (bool verbose)
     //assert ( (str_SELFTEST_DIR_RW != "") );
     // NOTE that for "char*" context you need (str_SELFTEST_DIR_RO + "/myfilename").c_str()
 
-    azpoller_t *self = azpoller_new ();
+    az_poller_t *self = az_poller_new ();
     assert (self);
-    azpoller_destroy (&self);
+    az_poller_destroy (&self);
     //  @end
     printf ("OK\n");
 }

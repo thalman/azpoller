@@ -38,7 +38,7 @@ void
 azpoller_private_selftest (bool verbose)
 {
 // Tests for stable private classes:
-    azpoller_test (verbose);
+    az_poller_test (verbose);
 }
 /*
 ################################################################################

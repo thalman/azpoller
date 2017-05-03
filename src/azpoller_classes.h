@@ -35,13 +35,13 @@
 //  Extra headers
 
 //  Opaque class structures to allow forward references
-#ifndef AZPOLLER_T_DEFINED
-typedef struct _azpoller_t azpoller_t;
-#define AZPOLLER_T_DEFINED
+#ifndef AZ_POLLER_T_DEFINED
+typedef struct _az_poller_t az_poller_t;
+#define AZ_POLLER_T_DEFINED
 #endif
 
 //  Internal API
-#include "azpoller.h"
+#include "az_poller.h"
 
 //  *** To avoid double-definitions, only define if building without draft ***
 #ifndef AZPOLLER_BUILD_DRAFT_API
@@ -49,7 +49,7 @@ typedef struct _azpoller_t azpoller_t;
 //  *** Draft method, defined for internal use only ***
 //  Self test of this class.
 AZPOLLER_PRIVATE void
-    azpoller_test (bool verbose);
+    az_poller_test (bool verbose);
 
 //  Self test for private classes
 AZPOLLER_PRIVATE void

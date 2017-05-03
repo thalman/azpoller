@@ -44,7 +44,7 @@ EXTRA_DIST += \
 endif
 
 EXTRA_DIST += \
-    src/azpoller.h \
+    src/az_poller.h \
     README.md \
     src/azpoller_classes.h
 

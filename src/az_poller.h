@@ -1,5 +1,5 @@
 /*  =========================================================================
-    azpoller - Email transport
+    az_poller - class description
 
     Copyright (C) 2014 - 2017 Eaton                                        
                                                                            
@@ -19,28 +19,25 @@
     =========================================================================
 */
 
-#ifndef AZPOLLER_H_INCLUDED
-#define AZPOLLER_H_INCLUDED
+#ifndef AZ_POLLER_H_INCLUDED
+#define AZ_POLLER_H_INCLUDED
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-//  Include the library file with typdefs, public includes and public constants
-#include "azpoller_library.h"
-
 //  @interface
-//  Create a new azpoller
-AZPOLLER_PRIVATE azpoller_t *
-    azpoller_new (void);
+//  Create a new az_poller
+AZPOLLER_PRIVATE az_poller_t *
+    az_poller_new (void);
 
-//  Destroy the azpoller
+//  Destroy the az_poller
 AZPOLLER_PRIVATE void
-    azpoller_destroy (azpoller_t **self_p);
+    az_poller_destroy (az_poller_t **self_p);
 
 //  Self test of this class
 AZPOLLER_PRIVATE void
-    azpoller_test (bool verbose);
+    az_poller_test (bool verbose);
 
 //  @end
 

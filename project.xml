@@ -16,7 +16,7 @@
         repository="https://github.com/42ity/czmq.git"/>
     <use project = "malamute" />
 
-    <class name = "azpoller" private="1">Email transport</class>
+    <class name = "az_poller" private="1"></class>
 
     <main name = "azpoller-receiver">
         azpoller receiver
