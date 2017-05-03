@@ -28,6 +28,12 @@
 
 #include "azpoller_classes.h"
 
+#include <qpid/messaging/Address.h>
+#include <qpid/messaging/Message.h>
+#include <qpid/messaging/Session.h>
+#include <qpid/messaging/Receiver.h>
+
+
 //  Structure of our class
 
 struct _az_poller_t {
@@ -68,6 +74,9 @@ void
 az_poller_actor (zsock_t *pipe, void *session) {
     zsock_signal (pipe, 0);
     zpoller_t *pipepoller = zpoller_new (pipe, NULL);
+
+    qpid::messaging::Session *QS = (qpid::messaging::Session *)session;
+
     while (!zsys_interrupted) {
         void *which = zpoller_wait (pipepoller, 0);
         if (which) {
@@ -84,6 +93,21 @@ az_poller_actor (zsock_t *pipe, void *session) {
                     zstr_free (&cmd);
                 }
                 zmsg_destroy (&msg);
+            }
+        }
+        if (zsys_interrupted) {
+            break;
+        }
+        if (QS) {
+            // solve Amqp
+            try {
+                qpid::messaging::Receiver R;
+                if (QS->nextReceiver (R, qpid::messaging::Duration::SECOND)) {
+                    qpid::messaging::Message M = R.get();
+                    // do something
+                }
+            } catch (...) {
+                zclock_sleep (1000);
             }
         }
     }
