@@ -354,6 +354,66 @@ dnl END of PKG_CHECK_MODULES and/or direct tests for libmlm
 dnl END of enabled attempts to search for libmlm
 
 
+was_qpid_check_lib_detected=no
+
+search_qpid="no"
+
+AC_ARG_WITH([qpid],
+    [
+        AS_HELP_STRING([--with-qpid],
+        [yes or no. Optionally specify qpid prefix (directory where its include/ and lib/ are located), but that is only used if pkgconfig metadata is not found first])
+    ],
+    [
+        search_qpid="yes"
+    ],
+    [])
+AS_CASE([x"${with_qpid}"],
+    [xyes], [search_qpid="yes"],
+    [xno],  [search_qpid="no"])
+
+
+AS_IF([test x"${search_qpid}" = xyes], [
+    # Archive previously detected and supplied flags
+    PRE_SEARCH_CFLAGS="${CFLAGS}"
+    PRE_SEARCH_LIBS="${LIBS}"
+
+    found_pkgconfig=""
+    found_linkname=""
+    PKG_CHECK_MODULES([qpid], [qpid >= 0.0.0],
+    [
+        AC_DEFINE(HAVE_QPID, 1, [The optional qpid library is to be used])
+        PKGCFG_LIBS_PRIVATE="$PKGCFG_LIBS_PRIVATE $qpid_LIBS"
+        was_qpid_check_lib_detected=pkgcfg
+        found_pkgconfig="qpid"
+    ],
+    [
+        AC_MSG_WARN([Attribute 'test' is not set on zproject dependency 'qpid' - please ensure it is set])
+    ])
+
+dnl END of PKG_CHECK_MODULES and/or direct tests for qpid
+    AS_CASE(["x${was_qpid_check_lib_detected}"],
+        [xpkgcfg], [
+                AC_SUBST([pkgconfig_name_qpid],[${found_pkgconfig}])
+                CFLAGS="${qpid_CFLAGS} ${CFLAGS}"
+                LIBS="${qpid_LIBS} ${LIBS}"
+            ],
+        [xyes], [
+                AC_SUBST([pkgconfig_name_qpid],[${found_linkname}])
+                CFLAGS="${qpid_synthetic_cflags} ${CFLAGS}"
+                LDFLAGS="${qpid_synthetic_libs} ${LDFLAGS}"
+                LIBS="${qpid_synthetic_libs} ${LIBS}"
+
+                AC_SUBST([qpid_CFLAGS],[${qpid_synthetic_cflags}])
+                AC_SUBST([qpid_LIBS],[${qpid_synthetic_libs}])
+            ],
+        [xno], [
+                AC_SUBST([pkgconfig_name_qpid],[qpid])
+            AC_MSG_WARN([Cannot find pkg-config metadata for qpid 0.0.0 or higher])
+    ])
+])
+dnl END of enabled attempts to search for qpid
+
+
 CFLAGS="${PREVIOUS_CFLAGS}"
 LIBS="${PREVIOUS_LIBS}"
 

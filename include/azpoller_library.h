@@ -32,6 +32,9 @@
 //  External dependencies
 #include <czmq.h>
 #include <malamute.h>
+#if defined (HAVE_QPID)
+#include <stdio.h>
+#endif
 
 //  AZPOLLER version macros for compile-time API detection
 #define AZPOLLER_VERSION_MAJOR 1
