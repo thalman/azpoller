@@ -32,6 +32,10 @@ namespace msg = qpid::messaging;
 AZPOLLER_PRIVATE az_poller_t *
     az_poller_new (msg::Connection connection);
 
+// Unwrap the actor
+AZPOLLER_PRIVATE zactor_t *
+    az_poller_actor (az_poller_t *self);
+
 //  Destroy the az_poller
 AZPOLLER_PRIVATE void
     az_poller_destroy (az_poller_t **self_p);

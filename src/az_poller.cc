@@ -118,6 +118,17 @@ az_poller_destroy (az_poller_t **self_p)
     }
 }
 
+//---------------------------------------------------------------------------
+// Unwrap the actor
+zactor_t *
+az_poller_actor (az_poller_t *self)
+{
+    if (self && self->actor)
+        return self->actor;
+    else
+        return NULL;
+}
+
 //  --------------------------------------------------------------------------
 //  Self test of this class
 
