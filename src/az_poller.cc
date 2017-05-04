@@ -32,56 +32,21 @@
 #include <qpid/messaging/Session.h>
 #include <qpid/messaging/Receiver.h>
 
+namespace msg = qpid::messaging;
 
 //  Structure of our class
 
 struct _az_poller_t {
-    zpoller_t *mlm_poller;
-    msg::Session amqp_session;
+    zactor_t *actor;
 };
 
-
-//  --------------------------------------------------------------------------
-//  Create a new az_poller
-
-az_poller_t *
-az_poller_new (msg::Connection connection, ...)
-{
-    az_poller_t *self = new az_poller_t;
-    assert (self);
-    //  Initialize class properties here
-    va_list zreaders;
-    va_start (zreaders, connection);
-    self->mlm_poller = zpoller_new (zreaders);
-    self->amqp_session = connection.createSession ();
-    return self;
-}
-
-
-//  --------------------------------------------------------------------------
-//  Destroy the az_poller
-
-void
-az_poller_destroy (az_poller_t **self_p)
-{
-    assert (self_p);
-    if (*self_p) {
-        az_poller_t *self = *self_p;
-        //  Free class properties here
-        zpoller_destroy (&self->mlm_poller);
-        delete &self->amqp_session;
-        //  Free object itself
-        delete self;
-        *self_p = NULL;
-    }
-}
 
 void
 az_poller_actor (zsock_t *pipe, void *session) {
     zsock_signal (pipe, 0);
     zpoller_t *pipepoller = zpoller_new (pipe, NULL);
 
-    qpid::messaging::Session *QS = (qpid::messaging::Session *)session;
+    msg::Session *QS = (msg::Session *)session;
 
     while (!zsys_interrupted) {
         void *which = zpoller_wait (pipepoller, 0);
@@ -107,15 +72,49 @@ az_poller_actor (zsock_t *pipe, void *session) {
         if (QS) {
             // solve Amqp
             try {
-                qpid::messaging::Receiver R;
-                if (QS->nextReceiver (R, qpid::messaging::Duration::SECOND)) {
-                    qpid::messaging::Message M = R.get();
+                msg::Receiver R;
+                if (QS->nextReceiver (R, msg::Duration::SECOND)) {
+                    msg::Message M = R.get();
                     // do something
                 }
             } catch (...) {
                 zclock_sleep (1000);
             }
         }
+    }
+}
+
+//  --------------------------------------------------------------------------
+//  Create a new az_poller
+
+az_poller_t *
+az_poller_new (msg::Connection connection)
+{
+    az_poller_t *self = (az_poller_t *) zmalloc (sizeof (az_poller_t));
+    assert (self);
+    //  Initialize class properties here
+    try {
+        msg::Session session = connection.createSession ();
+        self->actor = zactor_new (az_poller_actor, (void *) &session);
+    } catch (...) {}
+    return self;
+}
+
+
+//  --------------------------------------------------------------------------
+//  Destroy the az_poller
+
+void
+az_poller_destroy (az_poller_t **self_p)
+{
+    assert (self_p);
+    if (*self_p) {
+        az_poller_t *self = *self_p;
+        //  Free class properties here
+        zactor_destroy (&self->actor);
+        //  Free object itself
+        free (self);
+        *self_p = NULL;
     }
 }
 

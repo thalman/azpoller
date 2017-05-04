@@ -30,7 +30,7 @@ namespace msg = qpid::messaging;
 //  @interface
 //  Create a new az_poller
 AZPOLLER_PRIVATE az_poller_t *
-    az_poller_new (msg::Connection connection, ...);
+    az_poller_new (msg::Connection connection);
 
 //  Destroy the az_poller
 AZPOLLER_PRIVATE void
